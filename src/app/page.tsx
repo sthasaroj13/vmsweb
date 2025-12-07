@@ -1,12 +1,14 @@
-import Image from "next/image";
+"use client";
 import NavBar from "../component/NavBar";
-import DashPage from "../app/Admin/DashPage";
+import Signup from "../app/signuppage/page";
+import useAppSelector from "../hooks/useAppSelector";
 export default function Home() {
   return (
     <>
       <main>
-        <NavBar />
-        <DashPage />
+        <>
+          <Signup />
+        </>
       </main>
     </>
   );

@@ -1,48 +1,64 @@
-import { createSlice, type PayloadAction, } from "@reduxjs/toolkit";
+"use client";
+
+import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 interface AuthState {
     accessToken: string | null;
-    name: string | null
-    email: string | null
+    username: string | null;
     isAuthenticated: boolean;
+    role: string | null
+
 }
 
-const initialState: AuthState = {
-    accessToken: localStorage.getItem("accessToken") || null,
-    name: localStorage.getItem("userName") || null,
-    isAuthenticated: !!localStorage.getItem("accessToken"),
-    email: localStorage.getItem("email") || null,
+// Only access localStorage in the browser
+const isBrowser = typeof window !== "undefined";
 
+const initialState: AuthState = {
+    accessToken: isBrowser ? localStorage.getItem("accessToken") : null,
+    username: isBrowser ? localStorage.getItem("userName") : null,
+    role: isBrowser ? localStorage.getItem("role") : null,
+    isAuthenticated: isBrowser ? !!localStorage.getItem("accessToken") : false,
 };
 
 const authSlice = createSlice({
     name: "auth",
     initialState,
     reducers: {
-        login: (state, action: PayloadAction<{ token: string; name: string, email: string }>) => {
+        login: (
+            state,
+            action: PayloadAction<{ token: string; username: string; role: string }>
+        ) => {
             state.accessToken = action.payload.token;
             state.isAuthenticated = true;
-            state.name = action.payload.name;
-            state.email = action.payload.email;
-            localStorage.setItem("accessToken", action.payload.token);
-            localStorage.setItem("userName", action.payload.name);
-            localStorage.setItem("email", action.payload.email)
+            state.username = action.payload.username // lowercase username
+            state.role = action.payload.role;
+
+            if (isBrowser) {
+                localStorage.setItem("accessToken", action.payload.token);
+                localStorage.setItem("userName", state.username);
+                localStorage.setItem("role", state.role);
+            }
         },
         logout: (state) => {
             state.accessToken = null;
             state.isAuthenticated = false;
-            state.name = null;
-            state.email = null;
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("userName")
-            localStorage.removeItem("email")
+            state.username = null;
+            state.role = null;
+
+            if (isBrowser) {
+                localStorage.removeItem("accessToken");
+                localStorage.removeItem("userName");
+                localStorage.removeItem("role");
+            }
         },
-        updateName: (state, action: PayloadAction<string>) => {
-            state.name = action.payload;
-            localStorage.setItem("userName", action.payload);
+        updateUsername: (state, action: PayloadAction<string>) => {
+            state.username = action.payload.toLowerCase().trim();
+            if (isBrowser) {
+                localStorage.setItem("userName", state.username);
+            }
         },
     },
 });
 
-export const { login, logout, updateName } = authSlice.actions;
+export const { login, logout, updateUsername } = authSlice.actions;
 export default authSlice.reducer;

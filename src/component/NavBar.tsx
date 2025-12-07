@@ -1,12 +1,18 @@
 "use client";
-
-import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import useAppSelector from "../hooks/useAppSelector";
 
 const NavBar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const [mounted, setMounted] = useState(false);
 
+  useEffect(() => {
+    setMounted(true); // now we are on client
+  }, []);
+
+  if (!mounted) return null;
   return (
     <nav className="sticky top-0 z-50 bg-primary shadow-md">
       <div className=" mx-auto px-1 sm:px-1 lg:px-10">
@@ -57,21 +63,25 @@ const NavBar = () => {
               </svg>
             </button>
           </div>
-          <div>
-            <ul className=" bg-primary text-white font-semibold   flex  gap-2.5">
-              <Link href="signuppage">
-                <li className="hover:text-gray-200 transition-colors duration-300 cursor-pointer rounded-[.625rem] outline-1 px-2.5 py-1">
-                  Sign up
-                </li>
-              </Link>
+          {isAuthenticated ? (
+            <span>Profile</span>
+          ) : (
+            <div>
+              <ul className=" bg-primary text-white font-semibold   flex  gap-2.5">
+                <Link href="signuppage">
+                  <li className="hover:text-gray-200 transition-colors duration-300 cursor-pointer rounded-[.625rem] outline-1 px-2.5 py-1">
+                    Sign up
+                  </li>
+                </Link>
 
-              <Link href="/loginpage">
-                <li className="hover:text-gray-200 transition-colors duration-300 cursor-pointer outline-1 rounded-[.625rem] px-4.5 py-1">
-                  Login
-                </li>
-              </Link>
-            </ul>
-          </div>
+                <Link href="/loginpage">
+                  <li className="hover:text-gray-200 transition-colors duration-300 cursor-pointer outline-1 rounded-[.625rem] px-4.5 py-1">
+                    Login
+                  </li>
+                </Link>
+              </ul>
+            </div>
+          )}
         </div>
       </div>
 
